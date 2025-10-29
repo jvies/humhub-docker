@@ -93,7 +93,7 @@ jobs:
       run: sed -i "s/docker.io\/${{ github.repository_owner }}\/humhub:latest/ghcr.io\/${{ github.repository_owner }}\/humhub:temp-${{ github.run_id }}-${HUMHUB_VERSION}-allinone/g" docker-compose.yml
     - name: Spin up services
       run: docker compose -f docker-compose.yml up -d
-    - name: Wait 
+    - name: Wait
       run: sleep 60
     - name: Check status
       run: docker ps -a
@@ -103,6 +103,9 @@ jobs:
       run: curl http://localhost:8080/ -L --fail && curl http://localhost:8080/ -L --fail -s | grep 'Sign in</button>' -q
     - name: Test Email
       run: docker compose exec -T humhub php /var/www/localhost/htdocs/protected/yii test/email 'test@example.com' | grep 'Message successfully sent!' -q
+    - name: Cleanup
+      if: always()
+      run: docker compose -f docker-compose.yml down -v
   test_prod:
     needs: build_variants
     runs-on: ubuntu-latest
@@ -135,7 +138,7 @@ jobs:
         sed -i "s/docker.io\/${DOCKER_IO_USER:-${{ github.repository_owner }}}\/humhub:stable-phponly/ghcr.io\/${{ github.repository_owner }}\/humhub:temp-${{ github.run_id }}-${HUMHUB_VERSION}-phponly/g" docker-compose.prod.yml
     - name: Spin up services
       run: docker compose -f docker-compose.prod.yml up -d
-    - name: Wait 
+    - name: Wait
       run: sleep 60
     - name: Check status
       run: docker ps -a
@@ -145,6 +148,9 @@ jobs:
       run: curl http://localhost:8080/ -L --fail && curl http://localhost:8080/ -L --fail -s | grep 'Sign in</button>' -q
     - name: Test Email
       run: docker compose exec -T humhub php /var/www/localhost/htdocs/protected/yii test/email 'test@example.com' | grep 'Message successfully sent!' -q
+    - name: Cleanup
+      if: always()
+      run: docker compose -f docker-compose.prod.yml down -v
   push_ghcr:
     needs: ["test_aio", "test_prod"]
     runs-on: ubuntu-latest
