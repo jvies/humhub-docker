@@ -4,27 +4,27 @@ ARG BUILD_DEPS="\
     ca-certificates \
     nodejs \
     npm \
-    php83 \
-    php83-ctype \
-    php83-curl \
-    php83-dom \
-    php83-exif \
-    php83-fileinfo \
-    php83-gd \
-    php83-iconv \
-    php83-intl \
-    php83-json \
-    php83-ldap \
-    php83-mbstring \
-    php83-openssl \
-    php83-pdo_mysql \
-    php83-phar \
-    php83-simplexml \
-    php83-tokenizer \
-    php83-xml \
-    php83-xmlreader \
-    php83-xmlwriter \
-    php83-zip \
+    php84 \
+    php84-ctype \
+    php84-curl \
+    php84-dom \
+    php84-exif \
+    php84-fileinfo \
+    php84-gd \
+    php84-iconv \
+    php84-intl \
+    php84-json \
+    php84-ldap \
+    php84-mbstring \
+    php84-openssl \
+    php84-pdo_mysql \
+    php84-phar \
+    php84-simplexml \
+    php84-tokenizer \
+    php84-xml \
+    php84-xmlreader \
+    php84-xmlwriter \
+    php84-zip \
     composer \
     tzdata \
     "
@@ -34,33 +34,33 @@ ARG RUNTIME_DEPS="\
     curl \
     imagemagick \
     libintl \
-    php83 \
-    php83-apcu \
-    php83-bcmath \
-    php83-ctype \
-    php83-curl \
-    php83-dom \
-    php83-exif \
-    php83-fileinfo \
-    php83-fpm \
-    php83-gd \
-    php83-gmp \
-    php83-iconv \
-    php83-intl \
-    php83-json \
-    php83-ldap \
-    php83-mbstring \
-    php83-openssl \
-    php83-pdo_mysql \
-    php83-pecl-imagick \
-    php83-phar \
-    php83-session \
-    php83-simplexml \
-    php83-sqlite3 \
-    php83-xml \
-    php83-xmlreader \
-    php83-xmlwriter \
-    php83-zip \
+    php84 \
+    php84-apcu \
+    php84-bcmath \
+    php84-ctype \
+    php84-curl \
+    php84-dom \
+    php84-exif \
+    php84-fileinfo \
+    php84-fpm \
+    php84-gd \
+    php84-gmp \
+    php84-iconv \
+    php84-intl \
+    php84-json \
+    php84-ldap \
+    php84-mbstring \
+    php84-openssl \
+    php84-pdo_mysql \
+    php84-pecl-imagick \
+    php84-phar \
+    php84-session \
+    php84-simplexml \
+    php84-sqlite3 \
+    php84-xml \
+    php84-xmlreader \
+    php84-xmlwriter \
+    php84-zip \
     sqlite \
     supervisor \
     tzdata \
