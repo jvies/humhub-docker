@@ -133,6 +133,9 @@ else
 	chown -R nginx:nginx /var/www/localhost/htdocs/protected/config
 	chown -R nginx:nginx /var/www/localhost/htdocs/protected/runtime
 
+	mkdir -p /var/www/localhost/htdocs/assets
+	chown -R nginx:nginx /var/www/localhost/htdocs/assets
+
 	wait_for_db
 
 	echo >&3 "$0: Creating database..."
@@ -262,6 +265,9 @@ if /usr/bin/find "/docker-entrypoint.d/" -mindepth 1 -maxdepth 1 -type f -print 
 else
 	echo >&3 "$0: No files found in /docker-entrypoint.d/, skipping configuration"
 fi
+
+# Ensure all assets are still owned by nginx after updates
+chown -R nginx:nginx /var/www/localhost/htdocs/assets
 
 echo >&3 "$0: Entrypoint finished! Launching ..."
 
