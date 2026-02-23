@@ -17,7 +17,7 @@ services:
       HUMHUB_HOST: humhum.com # alt.humhub.com 
       # Reverseproxy variables
       VIRTUAL_HOST: humhum.com # alt.humhumb.com
-      # Let's encrpyt variables
+      # Let's encrypt variables
       LETSENCRYPT_HOST: humhum.com # alt.humhub.com 
       LETSENCRYPT_EMAIL: admin@humhum.com
       NGINX_KEEPALIVE_TIMEOUT: '65'
