@@ -41,3 +41,6 @@ do
     [[ "$tag" == "stable" ]] && publish_image "${HUMHUB_VERSION}" "stable"
     [[ "$tag" == "legacy" ]] && publish_image "${HUMHUB_VERSION}" "legacy"
 done
+
+# ensure a 0 exit code if we get here
+exit 0
