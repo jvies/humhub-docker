@@ -135,4 +135,4 @@ VOLUME /app/public/protected/config
 VOLUME /app/public/protected/modules
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile", "--adapter", "caddyfile"]
+CMD ["frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile"]
