@@ -59,6 +59,8 @@ HUMHUB_REDIS_HOSTNAME=${HUMHUB_REDIS_HOSTNAME:-""}
 HUMHUB_REDIS_PORT=${HUMHUB_REDIS_PORT:-6379}
 HUMHUB_REDIS_PASSWORD=${HUMHUB_REDIS_PASSWORD:-""}
 
+CWD=$PWD
+
 wait_for_db() {
 	if [ "$WAIT_FOR_DB" = "false" ]; then
 		return 0
@@ -128,13 +130,13 @@ else
 	touch /app/public/protected/runtime/logs/app.log
 
 	echo >&3 "$0: Setting permissions..."
-	chown -R nginx:nginx /app/public/uploads
-	chown -R nginx:nginx /app/public/protected/modules
-	chown -R nginx:nginx /app/public/protected/config
-	chown -R nginx:nginx /app/public/protected/runtime
+	chown -R humhub:humhub /app/public/uploads
+	chown -R humhub:humhub /app/public/protected/modules
+	chown -R humhub:humhub /app/public/protected/config
+	chown -R humhub:humhub /app/public/protected/runtime
 
 	mkdir -p /app/public/assets
-	chown -R nginx:nginx /app/public/assets
+	chown -R humhub:humhub /app/public/assets
 
 	wait_for_db
 
@@ -194,8 +196,8 @@ else
 			php yii 'settings/set' 'base' 'mailer.allowSelfSignedCerts' "${HUMHUB_MAILER_ALLOW_SELF_SIGNED_CERTS}"
 		fi
 
-		chown -R nginx:nginx /app/public/protected/runtime
-		chown nginx:nginx /app/public/protected/config/dynamic.php
+		chown -R humhub:humhub /app/public/protected/runtime
+		chown humhub:humhub /app/public/protected/config/dynamic.php
 	fi
 fi
 
@@ -268,6 +270,10 @@ fi
 
 # Ensure all assets are still owned by nginx after updates
 chown -R humhub:humhub /app/public/assets
+
+
+cd $CWD
+
 
 echo >&3 "$0: Entrypoint finished! Launching ..."
 
