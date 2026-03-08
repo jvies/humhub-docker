@@ -122,13 +122,10 @@ RUN chown humhub:humhub /app/public
 
 USER humhub
 
-COPY --chown=humhub:humhub humhub/ /usr/src/humhub/
+COPY --chown=humhub:humhub base/ /
 
 RUN rm -f /app/public/protected/config/common.php && \
     echo "v${HUMHUB_VERSION}" > /usr/src/humhub/.version
-
-COPY base/ /
-COPY --chmod=+x docker-entrypoint.sh /docker-entrypoint.sh
 
 VOLUME /app/public/uploads
 VOLUME /app/public/protected/config
