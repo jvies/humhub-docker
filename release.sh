@@ -19,7 +19,7 @@ function publish_image() {
         src_image="$src_image_base-$variant"
         src_tag="${src_version}"
         for version in "$@"; do
-            dst_tag="${version}$postfix"    
+            dst_tag="${version}$postfix"
             echo "copy $src_image:$src_tag => $dst_image:$dst_tag"
             skopeo copy "docker://$src_image:$src_tag" "docker://$dst_image:$dst_tag"
         done

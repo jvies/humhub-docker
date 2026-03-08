@@ -32,7 +32,7 @@ jobs:
     - name: pull-request
       uses: repo-sync/pull-request@v2
       with:
-        source_branch: "${{ env.GIT_BRANCH }}"                                 
-        destination_branch: "main"                      
+        source_branch: "${{ env.GIT_BRANCH }}"
+        destination_branch: "main"
         pr_title: "Update to ${{ env.NEW_VERSION }}"
         github_token: ${{ secrets.GITHUB_TOKEN }}
