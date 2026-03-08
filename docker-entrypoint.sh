@@ -87,59 +87,59 @@ fi
 
 echo >&3 "$0: Starting pre-launch ..."
 
-if [ -f "/var/www/localhost/htdocs/protected/config/dynamic.php" ]; then
+if [ -f "/app/public/protected/config/dynamic.php" ]; then
 	echo >&3 "$0: Existing installation found!"
 
 	wait_for_db
 
-	INSTALL_VERSION=$(cat /var/www/localhost/htdocs/protected/config/.version)
+	INSTALL_VERSION=$(cat /app/public/protected/config/.version)
 	SOURCE_VERSION=$(cat /usr/src/humhub/.version)
-	cd /var/www/localhost/htdocs/protected/ || exit 1
+	cd /app/public/protected/ || exit 1
 	if [ "$INSTALL_VERSION" != "$SOURCE_VERSION" ]; then
 		echo >&3 "$0: Updating from version $INSTALL_VERSION to $SOURCE_VERSION"
 		php yii migrate/up --includeModuleMigrations=1 --interactive=0
-		cp -v /usr/src/humhub/.version /var/www/localhost/htdocs/protected/config/.version
+		cp -v /usr/src/humhub/.version /app/public/protected/config/.version
 	fi
 else
 	echo >&3 "$0: No existing installation found!"
 	echo >&3 "$0: Installing source files..."
-	cp -rv /usr/src/humhub/protected/config/* /var/www/localhost/htdocs/protected/config/
-	cp -v /usr/src/humhub/.version /var/www/localhost/htdocs/protected/config/.version
+	cp -rv /usr/src/humhub/protected/config/* /app/public/protected/config/
+	cp -v /usr/src/humhub/.version /app/public/protected/config/.version
 
-	if [ ! -f "/var/www/localhost/htdocs/protected/config/common.php" ]; then
+	if [ ! -f "/app/public/protected/config/common.php" ]; then
 		echo >&3 "$0: Generate config using common factory..."
 
 		echo '<?php return ' \
-			>/var/www/localhost/htdocs/protected/config/common.php
+			>/app/public/protected/config/common.php
 
-		sh -c "php /var/www/localhost/htdocs/protected/config/common-factory.php" \
-			>>/var/www/localhost/htdocs/protected/config/common.php
+		sh -c "php /app/public/protected/config/common-factory.php" \
+			>>/app/public/protected/config/common.php
 
 		echo ';' \
-			>>/var/www/localhost/htdocs/protected/config/common.php
+			>>/app/public/protected/config/common.php
 	fi
 
-	if ! php -l /var/www/localhost/htdocs/protected/config/common.php; then
+	if ! php -l /app/public/protected/config/common.php; then
 		echo >&3 "$0: Humhub common config is not valid! Fix errors before restarting."
 		exit 1
 	fi
 
-	mkdir -p /var/www/localhost/htdocs/protected/runtime/logs/
-	touch /var/www/localhost/htdocs/protected/runtime/logs/app.log
+	mkdir -p /app/public/protected/runtime/logs/
+	touch /app/public/protected/runtime/logs/app.log
 
 	echo >&3 "$0: Setting permissions..."
-	chown -R nginx:nginx /var/www/localhost/htdocs/uploads
-	chown -R nginx:nginx /var/www/localhost/htdocs/protected/modules
-	chown -R nginx:nginx /var/www/localhost/htdocs/protected/config
-	chown -R nginx:nginx /var/www/localhost/htdocs/protected/runtime
+	chown -R nginx:nginx /app/public/uploads
+	chown -R nginx:nginx /app/public/protected/modules
+	chown -R nginx:nginx /app/public/protected/config
+	chown -R nginx:nginx /app/public/protected/runtime
 
-	mkdir -p /var/www/localhost/htdocs/assets
-	chown -R nginx:nginx /var/www/localhost/htdocs/assets
+	mkdir -p /app/public/assets
+	chown -R nginx:nginx /app/public/assets
 
 	wait_for_db
 
 	echo >&3 "$0: Creating database..."
-	cd /var/www/localhost/htdocs/protected/ || exit 1
+	cd /app/public/protected/ || exit 1
 	if [ -z "$HUMHUB_DB_USER" ]; then
 		AUTOINSTALL="false"
 	fi
@@ -194,27 +194,27 @@ else
 			php yii 'settings/set' 'base' 'mailer.allowSelfSignedCerts' "${HUMHUB_MAILER_ALLOW_SELF_SIGNED_CERTS}"
 		fi
 
-		chown -R nginx:nginx /var/www/localhost/htdocs/protected/runtime
-		chown nginx:nginx /var/www/localhost/htdocs/protected/config/dynamic.php
+		chown -R nginx:nginx /app/public/protected/runtime
+		chown nginx:nginx /app/public/protected/config/dynamic.php
 	fi
 fi
 
 echo >&3 "$0: Config preprocessing ..."
 
-if test -e /var/www/localhost/htdocs/protected/config/dynamic.php &&
-	grep "'installed' => true" /var/www/localhost/htdocs/protected/config/dynamic.php -q; then
+if test -e /app/public/protected/config/dynamic.php &&
+	grep "'installed' => true" /app/public/protected/config/dynamic.php -q; then
 	echo >&3 "$0: installation active"
 
 	if [ "$SET_PJAX" != "false" ]; then
 		sed -i \
 			-e "s/'enablePjax' => false/'enablePjax' => true/g" \
-			/var/www/localhost/htdocs/protected/config/common.php
+			/app/public/protected/config/common.php
 	fi
 
 	if [ -n "$HUMHUB_TRUSTED_HOSTS" ]; then
 		sed -i \
 			-e "s|'trustedHosts' => \['.*'\]|'trustedHosts' => ['$HUMHUB_TRUSTED_HOSTS']|g" \
-			/var/www/localhost/htdocs/protected/config/web.php
+			/app/public/protected/config/web.php
 	fi
 else
 	echo >&3 "$0: no installation config found or not installed"
@@ -222,12 +222,12 @@ else
 fi
 
 if [ "$HUMHUB_DEBUG" = "false" ]; then
-	sed -i '/YII_DEBUG/s/^\/*/\/\//' /var/www/localhost/htdocs/index.php
-	sed -i '/YII_ENV/s/^\/*/\/\//' /var/www/localhost/htdocs/index.php
+	sed -i '/YII_DEBUG/s/^\/*/\/\//' /app/public/index.php
+	sed -i '/YII_ENV/s/^\/*/\/\//' /app/public/index.php
 	echo >&3 "$0: debug disabled"
 else
-	sed -i '/YII_DEBUG/s/^\/*//' /var/www/localhost/htdocs/index.php
-	sed -i '/YII_ENV/s/^\/*//' /var/www/localhost/htdocs/index.php
+	sed -i '/YII_DEBUG/s/^\/*//' /app/public/index.php
+	sed -i '/YII_ENV/s/^\/*//' /app/public/index.php
 	echo >&3 "$0: debug enabled"
 fi
 
@@ -267,7 +267,7 @@ else
 fi
 
 # Ensure all assets are still owned by nginx after updates
-chown -R nginx:nginx /var/www/localhost/htdocs/assets
+chown -R humhub:humhub /app/public/assets
 
 echo >&3 "$0: Entrypoint finished! Launching ..."
 
