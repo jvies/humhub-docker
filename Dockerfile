@@ -30,58 +30,19 @@ ARG BUILD_DEPS="\
     tzdata \
     "
 
-ARG RUNTIME_DEPS="\
-    ca-certificates \
-    curl \
-    imagemagick \
-    libintl \
-    php84 \
-    php84-apcu \
-    php84-bcmath \
-    php84-ctype \
-    php84-curl \
-    php84-dom \
-    php84-exif \
-    php84-fileinfo \
-    php84-fpm \
-    php84-gd \
-    php84-gmp \
-    php84-iconv \
-    php84-intl \
-    php84-json \
-    php84-ldap \
-    php84-mbstring \
-    php84-openssl \
-    php84-pdo_mysql \
-    php84-pecl-imagick \
-    php84-phar \
-    php84-session \
-    php84-simplexml \
-    php84-sodium \
-    php84-sqlite3 \
-    php84-xml \
-    php84-xmlreader \
-    php84-xmlwriter \
-    php84-zip \
-    sqlite \
-    supervisor \
-    tzdata \
-    "
-
 FROM docker.io/library/alpine:3.23.3 AS builder
 
 ARG HUMHUB_VERSION
 ARG BUILD_DEPS
 
-RUN apk add --no-cache --update $BUILD_DEPS && \
-    rm -rf /var/cache/apk/*
+RUN apk add --no-cache --update $BUILD_DEPS
 
 WORKDIR /usr/src/
 ADD https://github.com/humhub/humhub/archive/v${HUMHUB_VERSION}.tar.gz /usr/src/
 RUN tar xzf v${HUMHUB_VERSION}.tar.gz && \
     mv humhub-${HUMHUB_VERSION} humhub && \
     rm v${HUMHUB_VERSION}.tar.gz
-    
+
 WORKDIR /usr/src/humhub
 
 RUN composer config --no-plugins allow-plugins.yiisoft/yii2-composer true && \
@@ -93,11 +54,13 @@ RUN composer config --no-plugins allow-plugins.yiisoft/yii2-composer true && \
     grunt build-assets && \
     rm -rf ./node_modules
 
-FROM docker.io/library/alpine:3.23.3 AS base
+FROM dunglas/frankenphp:php8.4-alpine AS runner
 
 ARG HUMHUB_VERSION
-ARG RUNTIME_DEPS
-LABEL name="HumHub" version=${HUMHUB_VERSION} variant="base" \
+ARG VCS_REF
+ARG BUILD_DATE
+
+LABEL name="HumHub" version=${HUMHUB_VERSION} variant="frankenphp" \
       org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.name="HumHub" \
       org.label-schema.description="HumHub is a feature rich and highly flexible OpenSource Social Network Kit written in PHP" \
@@ -108,78 +71,68 @@ LABEL name="HumHub" version=${HUMHUB_VERSION} variant="base" \
       org.label-schema.version=${HUMHUB_VERSION} \
       org.label-schema.schema-version="1.0"
 
-RUN apk add --no-cache --update $RUNTIME_DEPS && \
-    apk add --no-cache --virtual temp_pkgs gettext && \
-    cp /usr/bin/envsubst /usr/local/bin/envsubst && \
-    apk del temp_pkgs && \
-    rm -rf /var/cache/apk/*
+# Install system dependencies
+RUN apk add --no-cache \
+    ca-certificates \
+    curl \
+    icu-data-full \
+    imagemagick \
+    libintl \
+    shadow \
+    sqlite \
+    tzdata
 
-ENV PHP_POST_MAX_SIZE=16M
-ENV PHP_UPLOAD_MAX_FILESIZE=10M
-ENV PHP_MAX_EXECUTION_TIME=60
-ENV PHP_MEMORY_LIMIT=1G
-ENV PHP_TIMEZONE=UTC
+# Install PHP extensions
+RUN install-php-extensions \
+    apcu \
+    bcmath \
+    exif \
+    gd \
+    gmp \
+    intl \
+    ldap \
+    opcache \
+    pdo_mysql \
+    pdo_sqlite \
+    zip \
+    imagick
 
-RUN touch /var/run/supervisor.sock && \
-    chmod 777 /var/run/supervisor.sock
+ENV PHP_POST_MAX_SIZE=16M \
+    PHP_UPLOAD_MAX_FILESIZE=10M \
+    PHP_MAX_EXECUTION_TIME=60 \
+    PHP_MEMORY_LIMIT=1G \
+    PHP_TIMEZONE=UTC
 
-# 100=nginx 101=nginx (group)
-COPY --from=builder --chown=100:101 /usr/src/humhub /var/www/localhost/htdocs/
-COPY --chown=100:101 humhub/ /var/www/localhost/htdocs/
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
+    echo "post_max_size = ${PHP_POST_MAX_SIZE}" >> "$PHP_INI_DIR/conf.d/humhub.ini" && \
+    echo "upload_max_filesize = ${PHP_UPLOAD_MAX_FILESIZE}" >> "$PHP_INI_DIR/conf.d/humhub.ini" && \
+    echo "max_execution_time = ${PHP_MAX_EXECUTION_TIME}" >> "$PHP_INI_DIR/conf.d/humhub.ini" && \
+    echo "memory_limit = ${PHP_MEMORY_LIMIT}" >> "$PHP_INI_DIR/conf.d/humhub.ini" && \
+    echo "date.timezone = ${PHP_TIMEZONE}" >> "$PHP_INI_DIR/conf.d/humhub.ini"
 
-RUN mkdir -p /usr/src/humhub/protected/config/ && \
-    cp -R /var/www/localhost/htdocs/protected/config/* /usr/src/humhub/protected/config/ && \
-    rm -f var/www/localhost/htdocs/protected/config/common.php /usr/src/humhub/protected/config/common.php && \
-    echo "v${HUMHUB_VERSION}" >  /usr/src/humhub/.version
+# Create user and group
+RUN addgroup -g 101 -S humhub && \
+    adduser -u 100 -D -S -G humhub humhub && \
+	setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp;
+RUN	chown -R humhub:humhub /config/caddy /data/caddy
+
+# Copy HumHub
+COPY --from=builder --chown=humhub:humhub --chmod=u+rw /usr/src/humhub /app/public
+RUN chown humhub:humhub /app/public
+
+USER humhub
+
+COPY --chown=humhub:humhub humhub/ /usr/src/humhub/
+
+RUN rm -f /app/public/protected/config/common.php && \
+    echo "v${HUMHUB_VERSION}" > /usr/src/humhub/.version
 
 COPY base/ /
-COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY --chmod=+x docker-entrypoint.sh /docker-entrypoint.sh
 
-RUN chmod 600 /etc/crontabs/nginx && \
-    chmod +x /docker-entrypoint.sh
-
-VOLUME /var/www/localhost/htdocs/uploads
-VOLUME /var/www/localhost/htdocs/protected/config
-VOLUME /var/www/localhost/htdocs/protected/modules
+VOLUME /app/public/uploads
+VOLUME /app/public/protected/config
+VOLUME /app/public/protected/modules
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["supervisord", "-n", "-c", "/etc/supervisord.conf"]
-
-FROM base AS humhub_phponly
-
-LABEL variant="phponly"
-
-RUN apk add --no-cache fcgi
-
-COPY phponly/ /
-
-ADD https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck /usr/local/bin/php-fpm-healthcheck
-RUN chmod +x /usr/local/bin/php-fpm-healthcheck \
- && addgroup -g 101 -S nginx \
- && adduser --uid 100 -g 101 -S nginx
-
-EXPOSE 9000
-
-FROM docker.io/library/nginx:1.29.5-alpine AS humhub_nginx
-
-LABEL variant="nginx"
-
-ENV NGINX_CLIENT_MAX_BODY_SIZE=10m \
-    NGINX_KEEPALIVE_TIMEOUT=65 \
-    NGINX_UPSTREAM=humhub:9000
-
-RUN rm -rf /etc/nginx/conf.d/*
-COPY nginx/ /
-COPY --from=builder --chown=nginx:nginx /usr/src/humhub/ /var/www/localhost/htdocs/
-
-FROM base AS humhub_allinone
-
-LABEL variant="allinone"
-
-RUN apk add --no-cache nginx && \
-    chown -R nginx:nginx /var/lib/nginx/
-
-RUN rm -rf /etc/nginx/conf.d/*
-COPY nginx/ /
-
-EXPOSE 80
+CMD ["frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile", "--adapter", "caddyfile"]
