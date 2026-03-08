@@ -5,7 +5,7 @@
 version: '3.1'
 services:
   humhub:
-    image: docker.io/mriedmann/humhub:latest
+    image: docker.io/jeremyvies/humhub:latest
     ports:
       - "8080:80"
     environment:

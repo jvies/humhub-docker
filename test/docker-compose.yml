@@ -2,7 +2,7 @@ version: '3.1'
 services:
   humhub:
     restart: always
-    image: mriedmann/humhub:1.6.3
+    image: jeremyvies/humhub:1.6.3
     container_name: humhub
     hostname: humhub
     environment:
