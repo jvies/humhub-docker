@@ -81,7 +81,7 @@ jobs:
       uses: actions/download-artifact@v8
       with:
         name: build-${{ env.HUMHUB_VERSION }}-allinone
-    - name: Load images 
+    - name: Load images
       run: |
         docker load --input "build-${HUMHUB_VERSION}-allinone.tar.gz"
     - name: replace image
@@ -119,7 +119,7 @@ jobs:
       uses: actions/download-artifact@v8
       with:
         name: build-${{ env.HUMHUB_VERSION }}-nginx
-    - name: Load images 
+    - name: Load images
       run: |
         docker load --input "build-${HUMHUB_VERSION}-phponly.tar.gz"
         docker load --input "build-${HUMHUB_VERSION}-nginx.tar.gz"
@@ -167,9 +167,9 @@ jobs:
       uses: actions/download-artifact@v8
       with:
         name: build-${{ env.HUMHUB_VERSION }}-${{ matrix.target }}
-    - name: Load, retag and Push images 
+    - name: Load, retag and Push images
       run: |
         docker load --input "build-${HUMHUB_VERSION}-${{ matrix.target }}.tar.gz"
         docker tag "ghcr.io/${{ github.repository_owner }}/humhub:temp-${{ github.run_id }}-${HUMHUB_VERSION}-${{ matrix.target }}" "ghcr.io/${{ github.repository_owner }}/humhub-${{ matrix.target }}:${HUMHUB_VERSION}"
         docker push "ghcr.io/${{ github.repository_owner }}/humhub-${{ matrix.target }}:${HUMHUB_VERSION}"
-        
+
