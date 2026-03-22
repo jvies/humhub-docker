@@ -27,7 +27,7 @@ jobs:
     - name: Push changes
       uses: ad-m/github-push-action@v1
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.PAT }}
         branch: "${{ env.GIT_BRANCH }}"
     - name: pull-request
       uses: repo-sync/pull-request@v2
@@ -35,4 +35,4 @@ jobs:
         source_branch: "${{ env.GIT_BRANCH }}"
         destination_branch: "main"
         pr_title: "Update to ${{ env.NEW_VERSION }}"
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.PAT }}
