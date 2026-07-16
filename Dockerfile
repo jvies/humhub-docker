@@ -1,9 +1,8 @@
-ARG HUMHUB_VERSION
-ARG VCS_REF
-
 FROM dunglas/frankenphp:php8.5 AS builder
 
 ARG HUMHUB_VERSION
+ARG VCS_REF
+
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     acl \
@@ -56,6 +55,11 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
     echo "max_execution_time = ${PHP_MAX_EXECUTION_TIME}" >> "$PHP_INI_DIR/conf.d/humhub.ini" && \
     echo "memory_limit = ${PHP_MEMORY_LIMIT}" >> "$PHP_INI_DIR/conf.d/humhub.ini" && \
     echo "date.timezone = ${PHP_TIMEZONE}" >> "$PHP_INI_DIR/conf.d/humhub.ini"
+
+# JVI: for debug
+RUN echo "display_errors = On" >> "$PHP_INI_DIR/conf.d/humhub.ini" && \
+    echo "display_startup_errors = On" >> "$PHP_INI_DIR/conf.d/humhub.ini" && \
+    echo "error_reporting = E_ALL" >> "$PHP_INI_DIR/conf.d/humhub.ini"
 
 WORKDIR /usr/src/
 ADD https://github.com/humhub/humhub/archive/v${HUMHUB_VERSION}.tar.gz /usr/src/
@@ -123,6 +127,7 @@ COPY --from=builder /dist /
 
 # Copy HumHub
 COPY --from=builder --chown=100:101 /usr/src/humhub /app/public
+COPY Caddyfile /etc/frankenphp/Caddyfile
 
 COPY --chown=100:101 base/ /
 
@@ -137,5 +142,7 @@ VOLUME /app/public/protected/config
 VOLUME /app/public/protected/modules
 
 WORKDIR /app/public
+
+EXPOSE 8080
 
 CMD ["/usr/local/bin/frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile"]
