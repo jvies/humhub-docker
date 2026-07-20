@@ -4,7 +4,8 @@ ARG HUMHUB_VERSION
 ARG VCS_REF
 
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN set -o pipefail; \
+    apt-get update && apt-get install -y --no-install-recommends \
     acl \
     ca-certificates \
     curl \
@@ -87,7 +88,6 @@ RUN mkdir -p /dist/usr/lib /dist/usr/local/bin /dist/usr/local/lib /dist/usr/loc
 RUN cp /usr/local/bin/frankenphp /dist/usr/local/bin/frankenphp
 RUN cp -r /usr/local/lib/php /dist/usr/local/lib/php
 RUN cp -r /usr/local/etc/php /dist/usr/local/etc/php
-RUN cp /etc/caddy/Caddyfile /dist/etc/frankenphp/Caddyfile
 RUN cp -r /usr/share/zoneinfo /dist/usr/share/zoneinfo
 
 # Resolve shared libraries
@@ -106,7 +106,7 @@ RUN groupadd -g 101 humhub && \
     grep humhub /etc/passwd > /dist/etc/passwd && \
     grep humhub /etc/group > /dist/etc/group
 
-FROM gcr.io/distroless/base-debian13 AS runner
+FROM gcr.io/distroless/base-debian13:nonroot AS runner
 #FROM debian:13-slim AS runner
 
 ARG HUMHUB_VERSION

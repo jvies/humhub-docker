@@ -1,15 +1,15 @@
 {
-	# Active le mode FrankenPHP globalement
+	# enable FrankenPHP mode globally
 	frankenphp
 }
 
 :8080 {
-	# Répertoire racine du projet HumHub
+	# root directory of humhub
 	root * /app/public
 
-	# Active la compression des réponses
+	# enable compression of responses
 	encode zstd gzip
 
-	# Exécute l'application via le moteur FrankenPHP
+	# start the app via FrankenPHP
 	php_server
 }

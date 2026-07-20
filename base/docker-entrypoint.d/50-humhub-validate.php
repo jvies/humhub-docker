@@ -14,10 +14,10 @@ if ($integrityCheck === false || $integrityCheck === '') {
 
 if ($integrityCheck !== 'false') {
     echo "[hook 50-validate-humhub] Validating integrity...\n";
-    
+
     // We leverage the runYii function already defined globally in entrypoint.php
     $exitCode = runYii(['integrity/run', '--interactive', '0']);
-    
+
     if ($exitCode !== 0) {
         echo "[hook 50-validate-humhub] ERROR: Validation failed!\n";
         exit(1);
@@ -25,4 +25,3 @@ if ($integrityCheck !== 'false') {
 } else {
     echo "[hook 50-humhub-validate] Validation skipped.\n";
 }
-?>

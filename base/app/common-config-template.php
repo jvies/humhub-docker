@@ -79,4 +79,3 @@ if (!empty(getenv('HUMHUB_REDIS_HOSTNAME'))) {
         ];
     }
 }
-?>
