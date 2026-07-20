@@ -39,6 +39,7 @@ RUN install-php-extensions \
     intl \
     ldap \
     opcache \
+    pcntl \
     pdo_mysql \
     pdo_sqlite \
     zip
@@ -106,6 +107,7 @@ RUN groupadd -g 101 humhub && \
     grep humhub /etc/group > /dist/etc/group
 
 FROM gcr.io/distroless/base-debian13 AS runner
+#FROM debian:13-slim AS runner
 
 ARG HUMHUB_VERSION
 ARG VCS_REF
@@ -127,7 +129,6 @@ COPY --from=builder /dist /
 
 # Copy HumHub
 COPY --from=builder --chown=100:101 /usr/src/humhub /app/public
-COPY Caddyfile /etc/frankenphp/Caddyfile
 
 COPY --chown=100:101 base/ /
 
@@ -145,4 +146,8 @@ WORKDIR /app/public
 
 EXPOSE 8080
 
+# Point directly to PHP execution of entrypoint.php
+ENTRYPOINT ["/usr/local/bin/frankenphp", "php-cli", "/app/entrypoint.php"]
+
+# Command args passed to pcntl_exec / entrypoint.php
 CMD ["/usr/local/bin/frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile"]
