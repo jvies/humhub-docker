@@ -223,3 +223,7 @@ Special thanks go to following contributors for there incredible work on this im
 - [@bkmeneguello](https://github.com/bkmeneguello)
 
 And also to @luke- and his team for providing, building and maintaining HumHub.
+
+## For FrankenPHP cron task
+docker compose exec humhub /usr/local/bin/frankenphp php-cli /app/public/protected/yii cron/run
+docker compose exec humhub /usr/local/bin/frankenphp php-cli /app/public/protected/yii queue/run
