@@ -7,14 +7,14 @@
 		max_threads {$FRANKENPHP_MAX_THREADS:10}
 	}
 
-	servers :8080 {
+	servers :{$HTTP_PORT:8080} {
 		name frankenphp
 
 		protocols h1
 	}
 }
 
-:8080 {
+:{$HTTP_PORT:8080} {
 	# root directory of humhub
 	root * /app/public
 
