@@ -1,6 +1,17 @@
 {
+	auto_https off
+
 	# enable FrankenPHP mode globally
-	frankenphp
+	frankenphp {
+		num_threads 5
+		max_threads 10
+	}
+
+	servers :8080 {
+		name frankenphp
+
+		protocols h1
+	}
 }
 
 :8080 {
@@ -9,6 +20,9 @@
 
 	# enable compression of responses
 	encode zstd gzip
+
+	# Import the generated IP restriction snippet
+	import /etc/frankenphp/allowedips.caddy
 
 	# start the app via FrankenPHP
 	php_server
