@@ -3,8 +3,8 @@
 
 	# enable FrankenPHP mode globally
 	frankenphp {
-		num_threads 5
-		max_threads 10
+		num_threads {$FRANKENPHP_NUM_THREADS:5}
+		max_threads {$FRANKENPHP_MAX_THREADS:10}
 	}
 
 	servers :8080 {
@@ -21,8 +21,9 @@
 	# enable compression of responses
 	encode zstd gzip
 
-	# Import the generated IP restriction snippet
-	import /etc/frankenphp/allowedips.caddy
+	# Restrict to HUMHUB_REVERSEPROXY_WHITELIST
+	@blocked not remote_ip {$HUMHUB_REVERSEPROXY_WHITELIST:private_ranges}
+	abort @blocked
 
 	# start the app via FrankenPHP
 	php_server
