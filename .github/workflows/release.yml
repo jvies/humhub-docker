@@ -14,13 +14,13 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - name: Login to github registry
-      uses: docker/login-action@v4.5.2
+      uses: docker/login-action@v4.6.0
       with:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Login to docker-hub registry
-      uses: docker/login-action@v4.5.2
+      uses: docker/login-action@v4.6.0
       with:
         username: ${{ vars.DOCKER_IO_USER }}
         password: ${{ secrets.DOCKERHUB_PAT }}
