@@ -11,13 +11,12 @@ This repository is a fork and continuation of [humhub-docker from Michael Riedma
 
 ## Versions
 
-This project provides different images and tags for different purposes, each one maintained on a different branch. For evaluation use `humhub:stable`, for production consider using the newest minor-version tag (e.g. `humhub:1.15`).
+This project provides different images and tags for different purposes, each one maintained on a different branch. For evaluation use `humhub:latest`, for production consider using the newest minor-version tag (e.g. `humhub:1.15`).
 
+- `beta` : very instable build with beta version from upstream. (for test purpose only)
 - `latest` : unstable master build (not recommended for production; use with caution, might be unstable!)
 - Minor (e.g `1.15`): Always points to the latest release of given minor version. (Recommended)
 - Build (e.g `1.15.4`): Always points to the latest release of given build. Very stable but might be outdated.
-- `stable`: Always points to oldest, still supported, therefore most mature version. Updates include minor-version changes which can include db-schema changes (higher risk).
-- `legacy`: Try to avoid this tag as much as possible. If your current installation is flagged as "deprecated" the related tag is also changed to "legacy". Please try to upgrade as fast as possible to avoid security and other issues.
 
 ### Variants
 

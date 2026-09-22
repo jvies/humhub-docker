@@ -34,12 +34,11 @@ HUMHUB_MACRO_VERSION=${MAJOR_VERSION}.${MINOR_VERSION}
 # publish the image under the minor-version pattern
 publish_image "${HUMHUB_VERSION}" "${HUMHUB_MACRO_VERSION}"
 
-# publish the image if one of the tag legacy/stable/latest is present
-for tag in $(git tag --contains)
+# publish the image according to the branch name
+for branch in $(git branch --contains)
 do
-    [[ "$tag" == "latest" ]] && publish_image "${HUMHUB_VERSION}" "latest"
-    [[ "$tag" == "stable" ]] && publish_image "${HUMHUB_VERSION}" "stable"
-    [[ "$tag" == "legacy" ]] && publish_image "${HUMHUB_VERSION}" "legacy"
+    [[ "$branch" == "beta" ]] && publish_image "${HUMHUB_VERSION}" "beta"
+    [[ "$branch" == "main" ]] && publish_image "${HUMHUB_VERSION}" "latest"
 done
 
 # ensure a 0 exit code if we get here
