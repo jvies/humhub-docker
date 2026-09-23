@@ -24,7 +24,13 @@ jobs:
       with:
         username: ${{ vars.DOCKER_IO_USER }}
         password: ${{ secrets.DOCKERHUB_PAT }}
-    - name: Execute Release
-      id: release
+    - name: Execute Release (beta)
+      id: pre-release
+      if: 'github.event.release.prerelease'
       run: |
-        . ./release.sh ghcr.io/${{ github.repository_owner }}/humhub docker.io/${{ vars.DOCKER_IO_USER }}/humhub
+        . ./release.sh ghcr.io/${{ github.repository_owner }}/humhub docker.io/${{ vars.DOCKER_IO_USER }}/humhub beta
+    - name: Execute Release (latest)
+      id: release
+      if: '! github.event.release.prerelease'
+      run: |
+        . ./release.sh ghcr.io/${{ github.repository_owner }}/humhub docker.io/${{ vars.DOCKER_IO_USER }}/humhub latest
