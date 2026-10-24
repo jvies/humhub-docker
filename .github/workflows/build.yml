@@ -95,7 +95,7 @@ jobs:
     - name: Logs
       run: docker compose logs
     - name: Test
-      run: curl http://localhost:8080/ -L --fail && curl http://localhost:8080/ -L --fail -s | grep 'Sign in</button>' -q
+      run: curl 'http://localhost:8080/' --location --fail --silent | grep --ignore-case '<body class="login-container">' --silent || ( curl 'http://localhost:8080/' --location --trace - ; exit 1;)
     - name: Test Email
       run: docker compose exec -T humhub php /var/www/localhost/htdocs/protected/yii test/email 'test@example.com' | grep 'Message successfully sent!' -q
     - name: Cleanup
@@ -136,7 +136,7 @@ jobs:
     - name: Logs
       run: docker compose logs
     - name: Test
-      run: curl http://localhost:8080/ -L --fail && curl http://localhost:8080/ -L --fail -s | grep 'Sign in</button>' -q
+      run: curl 'http://localhost:8080/' --location --fail --silent | grep --ignore-case '<body class="login-container">' --silent || ( curl 'http://localhost:8080/' --location --trace - ; exit 1;)
     - name: Test Email
       run: docker compose exec -T humhub php /var/www/localhost/htdocs/protected/yii test/email 'test@example.com' | grep 'Message successfully sent!' -q
     - name: Cleanup
