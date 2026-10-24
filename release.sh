@@ -32,8 +32,14 @@ MAJOR_VERSION=$(echo "$HUMHUB_VERSION" | cut -d'.' -f1)
 MINOR_VERSION=$(echo "$HUMHUB_VERSION" | cut -d'.' -f2)
 HUMHUB_MACRO_VERSION=${MAJOR_VERSION}.${MINOR_VERSION}
 
-# publish the image under the minor-version pattern
-publish_image "${HUMHUB_VERSION}" "${HUMHUB_MACRO_VERSION}" "${other_tag}"
+# Build arguments array, only adding other_tag if non-empty
+tags=("${HUMHUB_VERSION}" "${HUMHUB_MACRO_VERSION}")
+if [ -n "${other_tag}" ]; then
+    tags+=("${other_tag}")
+fi
+
+# Publish image tags
+publish_image "${tags[@]}"
 
 # ensure a 0 exit code if we get here
 exit 0
